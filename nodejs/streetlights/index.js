@@ -62,7 +62,7 @@ const getAssets = async function({ zone, type, id, bbox, token }) {
   const response = await request(url, makeHeaders(token, zone))
   if (typeof response === 'string' && FAILURE_RESPONSES.includes(response.toLowerCase())) {
     console.log('failed...response', response)
-    throw new Error('Asset query failed')
+    throw new Error(`Asset query failed:  ${response}`)
   }
   // logResponseMetadata(response)
 
@@ -219,6 +219,10 @@ const getLocations = async function({ zone, locationType, type, bbox, token }) {
 
   // console.log('locations zone', zone)
   let response = await request(queryURL, makeHeaders(token, zone))
+  if (typeof response === 'string' && FAILURE_RESPONSES.includes(response.toLowerCase())) {
+    console.log('failed...response', response)
+    throw new Error(`Location query failed:  ${response}`)
+  }
   // logResponseMetadata(response)
 
   const fc = {

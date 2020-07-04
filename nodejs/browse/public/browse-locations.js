@@ -82,11 +82,20 @@ function showPopup (e) {
 }
 
 const go = async function() {
-  // dynamically get assets...
   const [ box ] = getBoundingCoordinates()
-  const locations = await fetch(`/locations/?box=${box}&locationType=${locationType}`)
-  const json = await locations.json()
-  console.log('locations json', json)
+  try {
+    const locations = await fetch(`/streetlight-locations/?box=${box}&locationType=${locationType}`)
+    const json = await locations.json()
+    if (json.ok) {
+      console.log('locations json', json)
+      return json
+    } else {
+      throw json.error
+    }
+  } catch (e) {
+    console.log('failed to get locations, server error:\n', e)
+    return null
+  }
   return json
 }
 

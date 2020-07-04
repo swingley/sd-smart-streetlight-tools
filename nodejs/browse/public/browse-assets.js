@@ -88,7 +88,7 @@ async function showPopup (e) {
     .setHTML(popupContent(features[0]))
     .addTo(map)
   const eventType = zoneToDefaultEventType[zone]
-  const eventsUrl = `/events/?assetUid=${features[0].properties.assetUid}&zone=${zone}&eventType=${eventType}`
+  const eventsUrl = `/streetlight-events/?assetUid=${features[0].properties.assetUid}&zone=${zone}&eventType=${eventType}`
   const events = await fetch(eventsUrl)
   const json = await events.json()
   console.log('events', json)
@@ -98,7 +98,7 @@ const go = async function() {
   // get assets with the current map view
   const [ box ] = getBoundingCoordinates()
   try {
-    const assets = await fetch(`/assets/?box=${box}&zone=${zone}`)
+    const assets = await fetch(`/streetlight-assets/?box=${box}&zone=${zone}`)
     const json = await assets.json()
     if (assets.ok) {
       return json
@@ -106,7 +106,7 @@ const go = async function() {
       throw json.error
     }
   } catch (e) {
-    console.log('failed to update assets, server error:', e)
+    console.log('failed to update assets, server error:\n', e)
     return null
   }
 }

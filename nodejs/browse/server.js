@@ -55,7 +55,7 @@ app.get('/', function (request, response) {
 
 // tokenMiddleware takes care of retrieving and ensuring a token isn't expirted
 // makes valid token available on req.cityIqToken
-app.get('/assets/', cors(), tokenMiddleware, async function(req, res) {
+app.get('/streetlight-assets/', cors(), tokenMiddleware, async function(req, res) {
   try {
     console.log('assets query, zone?', req.query.zone)
     // possible zones:  'SD-IE-ENVIRONMENTAL', 'SD-IE-TRAFFIC', 'SD-IE-PEDESTRIAN', 'SD-IE-PARKING', 'SD-IE-BICYCLE'
@@ -104,42 +104,52 @@ app.get('/assets/', cors(), tokenMiddleware, async function(req, res) {
   // }
 })
 
-app.get('/events/', cors(), tokenMiddleware, async function(req, res) {
+app.get('/streetlight-events/', cors(), tokenMiddleware, async function(req, res) {
   console.log('getting events...', req.query.assetUid)
-  const {
-    assetUid,
-    zone,
-    eventType,
-    from,
-    to,
-    timezoneOffset
-  } = req.query
-  const events = await getEvents({
-    id: assetUid,
-    token: req.cityIqToken,
-    // possible types:  'PKIN', 'PKOUT', 'PEDEVT', 'TFEVT', 'HUMIDITY', 'PRESSURE', 'TEMPERATURE', 'METROLOGY', 'TIMESERIES'
-    // type: 'PKIN',
-    type: eventType || 'TEMPERATURE',
-    // possible zones:  'SD-IE-ENVIRONMENTAL', 'SD-IE-TRAFFIC', 'SD-IE-PEDESTRIAN', 'SD-IE-PARKING', 'SD-IE-BICYCLE'
-    zone: zone || 'SD-IE-ENVIRONMENTAL',
-    // date format for from and to expected to be YYYY-MM-DD
-    start: from,
-    stop: to,
-    timezoneOffset
-  })
-  res.json(events)
+  try {
+    const {
+      assetUid,
+      zone,
+      eventType,
+      from,
+      to,
+      timezoneOffset
+    } = req.query
+    const events = await getEvents({
+      id: assetUid,
+      token: req.cityIqToken,
+      // possible types:  'PKIN', 'PKOUT', 'PEDEVT', 'TFEVT', 'HUMIDITY', 'PRESSURE', 'TEMPERATURE', 'METROLOGY', 'TIMESERIES'
+      // type: 'PKIN',
+      type: eventType || 'TEMPERATURE',
+      // possible zones:  'SD-IE-ENVIRONMENTAL', 'SD-IE-TRAFFIC', 'SD-IE-PEDESTRIAN', 'SD-IE-PARKING', 'SD-IE-BICYCLE'
+      zone: zone || 'SD-IE-ENVIRONMENTAL',
+      // date format for from and to expected to be YYYY-MM-DD
+      start: from,
+      stop: to,
+      timezoneOffset
+    })
+    res.json(events)
+  } catch (error) {
+    console.log('caught error', error)
+    res.status(500).json({ error: error.message })
+  }
 })
 
-app.get('/locations/', cors(), tokenMiddleware, async function(req, res) {
-  const locations = await getLocations({
-    // zone: 'SD-IE-TRAFFIC',
-    zone: locationTypeToZone[req.query.locationType],
-    locationType: req.query.locationType,
-    type: 'bbox',
-    bbox: req.query.box,
-    token: req.cityIqToken
-  })
-  res.json(locations)
+app.get('/streetlight-locations/', cors(), tokenMiddleware, async function(req, res) {
+  try {
+    const locations = await getLocations({
+      // zone: 'SD-IE-TRAFFIC',
+      zone: locationTypeToZone[req.query.locationType],
+      locationType: req.query.locationType,
+      type: 'bbox',
+      bbox: req.query.box,
+      token: req.cityIqToken
+    })
+    res.json(locations)
+  } catch (error) {
+    console.log('caught error', error)
+    res.status(500).json({ error: error.message })
+  }
 })
 
 const listener = app.listen(process.env.PORT, function () {
